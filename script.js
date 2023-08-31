@@ -11,9 +11,10 @@ const musica = new Audio('sons/luna-rise-part-one.mp3');
 const audioPlay = new Audio('sons/play.wav');
 const audioPause = new Audio('sons/pause.mp3');
 const audioTempoFinalizado = new Audio('sons/beep.mp3');
+const tempoNaTela = document.querySelector('#timer');
 
 let intervaloId = null;
-let tempoDecorridoEmSegundos = 5;
+let tempoDecorridoEmSegundos = 1500;
 
 musica.loop = true;
 musicaFocoInput.addEventListener('change', () => {
@@ -25,21 +26,25 @@ musicaFocoInput.addEventListener('change', () => {
 });
 
 focoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 1500;
     alterarContexto('foco');
     focoBt.classList.add('active');
 });
 
 curtoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 300;
     alterarContexto('descanso-curto');
     curtoBt.classList.add('active');
 });
 
 longoBt.addEventListener('click', () => {
+    tempoDecorridoEmSegundos = 900;
     alterarContexto('descanso-longo')
     longoBt.classList.add('active');
 });
 
 function alterarContexto(contexto) {
+    mostrarTempo();
     botoes.forEach(function (contexto) {
         contexto.classList.remove('active');
     });
@@ -74,13 +79,13 @@ function alterarContexto(contexto) {
 
 const contagemRegressiva = () => {
     if (tempoDecorridoEmSegundos <= 0) {
-        zerar();
         audioTempoFinalizado.play();
         alert('Tempo finalizado!');
+        zerar();
         return;
     }
     tempoDecorridoEmSegundos -= 1;
-    console.log('Temporizador: ' + tempoDecorridoEmSegundos);
+    mostrarTempo();
 }
 
 startPauseBt.addEventListener('click', iniciarOuPausar);
@@ -93,9 +98,27 @@ function iniciarOuPausar() {
     }
     audioPlay.play();
     intervaloId = setInterval(contagemRegressiva, 1000);
+    startPauseBt.innerHTML = `
+        <img class="app__card-primary-butto-icon" src="/imagens/pause.png" alt="">
+        <span>Pausar</span>
+    `;
 }
 
 function zerar() {
     clearInterval(intervaloId);
+    startPauseBt.innerHTML = `
+        <img class="app__card-primary-butto-icon" src="/imagens/play_arrow.png" alt="">
+        <span>Começar</span>
+    `;
     intervaloId = null;
 }
+
+function mostrarTempo() {
+    const tempo = new Date(tempoDecorridoEmSegundos * 1000);
+    const tempoFormatado = tempo.toLocaleTimeString('pt-Br', {minute: '2-digit', second: '2-digit'});
+    tempoNaTela.innerHTML = `
+        ${tempoFormatado}
+    `;
+}
+
+mostrarTempo();
